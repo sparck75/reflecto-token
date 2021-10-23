@@ -2,8 +2,8 @@ const dotEnv = require('dotenv');
 dotEnv.config();
 
 const HDWalletProvider = require('@truffle/hdwallet-provider');
-const privateKey = [process.env.PRIVATE_KEY];
-const polygonApiKey = process.env.API
+const privateKey = [process.env.WALLET_PRIVATE_KEY];
+const polygonApiKey = process.env.BSC_API_KEY
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
