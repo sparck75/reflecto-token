@@ -18,6 +18,8 @@ contract DividendDistributor is IDividendDistributor {
     }
 
     IBEP20 BUSD = IBEP20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
+    IBEP20 CRYPT = IBEP20(0xDa6802BbEC06Ab447A68294A63DE47eD4506ACAA);
+
     address WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
     IDEXRouter router;
 

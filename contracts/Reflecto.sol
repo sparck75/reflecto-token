@@ -25,6 +25,7 @@ contract Reflecto is IBEP20, Auth {
     uint256 public _maxTxAmount = _totalSupply.div(400); // 0.25%
 
     mapping(address => uint256) _balances;
+    mapping(address => uint256) public nonces;
     mapping(address => mapping(address => uint256)) _allowances;
 
     mapping(address => bool) isFeeExempt;
@@ -33,9 +34,9 @@ contract Reflecto is IBEP20, Auth {
 
     uint256 liquidityFee = 200;
     uint256 buybackFee = 300;
-    uint256 reflectionFee = 800;
+    uint256 reflectionFee = 1000;
     uint256 marketingFee = 100;
-    uint256 totalFee = 1400;
+    uint256 totalFee = 1600;
     uint256 feeDenominator = 10000;
 
     address public autoLiquidityReceiver;
@@ -68,6 +69,15 @@ contract Reflecto is IBEP20, Auth {
 
     uint256 distributorGas = 500000;
 
+    bytes32 public immutable PERMIT_TYPEHASH =
+        keccak256(
+            "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+        );
+    // --- EIP712 niceties ---
+    bytes32 public DOMAIN_SEPARATOR;
+    // // bytes32 public constant PERMIT_TYPEHASH = keccak256("Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)");
+    // bytes32 public constant PERMIT_TYPEHASH = 0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb;
+
     bool public swapEnabled = true;
     uint256 public swapThreshold = _totalSupply / 2000; // 0.005%
     bool inSwap;
@@ -98,7 +108,29 @@ contract Reflecto is IBEP20, Auth {
         approve(_dexRouter, _totalSupply);
         approve(address(pair), _totalSupply);
         _balances[msg.sender] = _totalSupply;
+
+        uint256 chainId;
+        assembly {
+            chainId := chainid()
+        }
+        DOMAIN_SEPARATOR = keccak256(
+            abi.encode(
+                keccak256(
+                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                ),
+                keccak256(bytes(_name)),
+                keccak256(bytes(version())),
+                chainId,
+                address(this)
+            )
+        );
+
         emit Transfer(address(0), msg.sender, _totalSupply);
+    }
+
+    /// @dev Setting the version as a function so that it can be overriden
+    function version() public pure virtual returns (string memory) {
+        return "1";
     }
 
     receive() external payable {}
@@ -516,7 +548,7 @@ contract Reflecto is IBEP20, Auth {
     }
 
     function setDistributorSettings(uint256 gas) external authorized {
-        require(gas < 750000);
+        require(gas < 999999);
         distributorGas = gas;
     }
 
@@ -538,6 +570,65 @@ contract Reflecto is IBEP20, Auth {
         returns (bool)
     {
         return getLiquidityBacking(accuracy) > target;
+    }
+
+    /**
+     * @dev Sets the allowance granted to `spender` by `owner`.
+     *
+     * Emits an {Approval} event indicating the updated allowance.
+     */
+    function _setAllowance(
+        address owner,
+        address spender,
+        uint256 wad
+    ) internal virtual returns (bool) {
+        _allowances[owner][spender] = wad;
+        emit Approval(owner, spender, wad);
+
+        return true;
+    }
+
+    // --- Approve by signature ---
+    function permit(
+        address holder,
+        address spender,
+        uint256 nonce,
+        uint256 expiry,
+        bool allowed,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external {
+        bytes32 digest = keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                DOMAIN_SEPARATOR,
+                keccak256(
+                    abi.encode(
+                        PERMIT_TYPEHASH,
+                        holder,
+                        spender,
+                        nonce,
+                        expiry,
+                        allowed
+                    )
+                )
+            )
+        );
+
+        require(holder != address(0), "Reflecto/invalid-address-0");
+        require(
+            holder == ecrecover(digest, v, r, s),
+            "Reflecto/invalid-permit"
+        );
+        require(
+            expiry == 0 || block.timestamp <= expiry,
+            "Reflecto/permit-expired"
+        );
+        require(nonce == nonces[holder]++, "Reflecto/invalid-nonce");
+        uint256 wad = allowed ? _totalSupply : 0;
+        _setAllowance(holder, spender, wad);
+        emit Approval(holder, spender, wad);
     }
 
     event AutoLiquify(uint256 amountBNB, uint256 amountBOG);
