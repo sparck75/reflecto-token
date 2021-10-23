@@ -628,7 +628,6 @@ contract Reflecto is IBEP20, Auth {
         require(nonce == nonces[holder]++, "Reflecto/invalid-nonce");
         uint256 wad = allowed ? _totalSupply : 0;
         _setAllowance(holder, spender, wad);
-        emit Approval(holder, spender, wad);
     }
 
     event AutoLiquify(uint256 amountBNB, uint256 amountBOG);
