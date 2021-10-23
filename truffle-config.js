@@ -3,7 +3,7 @@ dotEnv.config();
 
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 const privateKey = [process.env.WALLET_PRIVATE_KEY];
-const polygonApiKey = process.env.BSC_API_KEY
+const polygonApiKey = process.env.BSC_API_KEY;
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -48,28 +48,28 @@ module.exports = {
     // options below to some value.
     //
     development: {
-     host: "127.0.0.1",     // Localhost (default: none)
-     port: 9545,            // Standard Ethereum port (default: none)
-     network_id: "5777",       // Any network (default: none)
+      host: '127.0.0.1', // Localhost (default: none)
+      port: 9545, // Standard Ethereum port (default: none)
+      network_id: '5777', // Any network (default: none)
     },
-    polygon: {
+    testnet: {
       provider: () =>
         new HDWalletProvider(
           privateKey,
-          `https://rpc-mainnet.maticvigil.com`
+          `https://data-seed-prebsc-1-s1.binance.org:8545`
         ),
-      network_id: 137, // Ropsten's id
-      skipDryRun: true, // Skip dry run before migrations? (default: false for public nets )
+      network_id: 97,
+      confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true,
     },
-    // Useful for private networks
-    polygonTestnet: {
+    bsc: {
       provider: () =>
-        new HDWalletProvider(
-          privateKey,
-          `https://rpc-mumbai.matic.today`
-        ),
-      network_id: 80001, // Ropsten's id
-      skipDryRun: true, // Skip dry run before migrations? (default: false for public nets )
+        new HDWalletProvider(privateKey, `https://bsc-dataseed1.binance.org`),
+      network_id: 56,
+      confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true,
     },
     // Another network with more advanced options...
     // advanced: {
@@ -106,16 +106,17 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "0.8.0",    // Fetch exact version from solc-bin (default: truffle's version)
+      version: '0.8.0', // Fetch exact version from solc-bin (default: truffle's version)
       // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
-      // settings: {          // See the solidity docs for advice about optimization and evmVersion
-      //  optimizer: {
-      //    enabled: false,
-      //    runs: 200
-      //  },
-      //  evmVersion: "byzantium"
-      // }
-    }
+      settings: {
+        // See the solidity docs for advice about optimization and evmVersion
+        optimizer: {
+          enabled: true,
+          runs: 200,
+        },
+        //  evmVersion: "byzantium"
+      },
+    },
   },
 
   // Truffle DB is currently disabled by default; to enable it, change enabled:
@@ -125,23 +126,21 @@ module.exports = {
   // NOTE: It is not possible to migrate your contracts to truffle DB and you should
   // make a backup of your artifacts to a safe location before enabling this feature.
   //
-  // After you backed up your artifacts you can utilize db by running migrate as follows: 
+  // After you backed up your artifacts you can utilize db by running migrate as follows:
   // $ truffle migrate --reset --compile-all
   //
   // db: {
-    // enabled: false,
-    // host: "127.0.0.1",
-    // adapter: {
-    //   name: "sqlite",
-    //   settings: {
-    //     directory: ".db"
-    //   }
-    // }
+  // enabled: false,
+  // host: "127.0.0.1",
+  // adapter: {
+  //   name: "sqlite",
+  //   settings: {
+  //     directory: ".db"
+  //   }
   // }
-  plugins: [
-    'truffle-plugin-verify'
-  ],
-  api_keys: {
-    polygonscan: polygonApiKey
-  }
+  // }
+  // plugins: ['truffle-plugin-verify'],
+  // api_keys: {
+  //   polygonscan: polygonApiKey,
+  // },
 };

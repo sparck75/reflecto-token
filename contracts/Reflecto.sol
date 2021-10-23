@@ -17,8 +17,8 @@ contract Reflecto is IBEP20, Auth {
     address ZERO = 0x0000000000000000000000000000000000000000;
     address DEAD_NON_CHECKSUM = 0x000000000000000000000000000000000000dEaD;
 
-    string constant _name = "REFLECTO";
-    string constant _symbol = "REFLECTO";
+    string constant _name = "REFLECTO_TEST_META";
+    string constant _symbol = "REFLECTO_TEST_META";
     uint8 constant _decimals = 9;
 
     uint256 _totalSupply = 1_000_000_000_000_000 * (10**_decimals);
@@ -69,14 +69,15 @@ contract Reflecto is IBEP20, Auth {
 
     uint256 distributorGas = 500000;
 
-    bytes32 public immutable PERMIT_TYPEHASH =
-        keccak256(
-            "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
-        );
+    // bytes32 public immutable PERMIT_TYPEHASH =
+    //     keccak256(
+    //         "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+    //     );
     // --- EIP712 niceties ---
     bytes32 public DOMAIN_SEPARATOR;
-    // // bytes32 public constant PERMIT_TYPEHASH = keccak256("Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)");
-    // bytes32 public constant PERMIT_TYPEHASH = 0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb;
+    // bytes32 public constant PERMIT_TYPEHASH = keccak256("Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)");
+    bytes32 public constant PERMIT_TYPEHASH =
+        0xea2aa0a1be11a07ed86d755c93467f4f82362b452371d1ba94d1715123511acb;
 
     bool public swapEnabled = true;
     uint256 public swapThreshold = _totalSupply / 2000; // 0.005%
@@ -131,6 +132,10 @@ contract Reflecto is IBEP20, Auth {
     /// @dev Setting the version as a function so that it can be overriden
     function version() public pure virtual returns (string memory) {
         return "1";
+    }
+
+    function getChainID() external view returns (uint256) {
+        return block.chainid;
     }
 
     receive() external payable {}
