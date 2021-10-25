@@ -12,9 +12,11 @@ contract DexFactory {
 
 contract DexRouter {
     DexFactory dexFactory;
-    constructor () public {
+
+    constructor() public {
         dexFactory = new DexFactory();
     }
+
     function factory() external view returns (address) {
         return address(dexFactory);
     }
@@ -84,6 +86,10 @@ contract DexRouter {
         address to,
         uint256 deadline
     ) external payable {}
+
+    function getBanalce() external view returns (uint256) {
+        return address(this).balance;
+    }
 
     function swapExactTokensForETHSupportingFeeOnTransferTokens(
         uint256 amountIn,

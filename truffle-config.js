@@ -51,6 +51,10 @@ module.exports = {
       host: '127.0.0.1', // Localhost (default: none)
       port: 9545, // Standard Ethereum port (default: none)
       network_id: '5777', // Any network (default: none)
+      // gas: 1, // Ropsten has a lower block limit than mainnet
+      // confirmations: 2, // # of confs to wait between deployments. (default: 0)
+      // timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true, // Skip dry run before migrations? (default: false for public nets )
     },
     testnet: {
       provider: () =>
@@ -59,16 +63,18 @@ module.exports = {
           `https://data-seed-prebsc-1-s1.binance.org:8545`
         ),
       network_id: 97,
-      confirmations: 10,
-      timeoutBlocks: 200,
+      // confirmations: 100,
+      // timeoutBlocks: 2000,
+      gas: 10000000,
       skipDryRun: true,
     },
     bsc: {
       provider: () =>
         new HDWalletProvider(privateKey, `https://bsc-dataseed1.binance.org`),
       network_id: 56,
-      confirmations: 10,
-      timeoutBlocks: 200,
+      // confirmations: 10,
+      // timeoutBlocks: 200,
+      gas: 10000000,
       skipDryRun: true,
     },
     // Another network with more advanced options...
@@ -82,14 +88,18 @@ module.exports = {
     // },
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
-    // ropsten: {
-    // provider: () => new HDWalletProvider(mnemonic, `https://ropsten.infura.io/v3/YOUR-PROJECT-ID`),
-    // network_id: 3,       // Ropsten's id
-    // gas: 5500000,        // Ropsten has a lower block limit than mainnet
-    // confirmations: 2,    // # of confs to wait between deployments. (default: 0)
-    // timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
-    // skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
-    // },
+    ropsten: {
+      provider: () =>
+        new HDWalletProvider(
+          privateKey,
+          `https://ropsten.infura.io/v3/89b93f8faefe4d27bc1bd00ad79e5c3f`
+        ),
+      network_id: 3, // Ropsten's id
+      gas: 5500000, // Ropsten has a lower block limit than mainnet
+      // confirmations: 2, // # of confs to wait between deployments. (default: 0)
+      // timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
+      // skipDryRun: true, // Skip dry run before migrations? (default: false for public nets )
+    },
     // Useful for private networks
     // private: {
     // provider: () => new HDWalletProvider(mnemonic, `https://network.io`),
@@ -112,9 +122,9 @@ module.exports = {
         // See the solidity docs for advice about optimization and evmVersion
         optimizer: {
           enabled: true,
-          runs: 200,
+          runs: 1000,
         },
-        //  evmVersion: "byzantium"
+        // evmVersion: 'homestead',
       },
     },
   },

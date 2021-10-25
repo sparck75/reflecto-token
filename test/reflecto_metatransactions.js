@@ -13,6 +13,11 @@ const PERMIT_TYPEHASH = utils.keccak256(
   )
 );
 
+const ownerPrivateKey = Buffer.from(
+  '41b1addcc51a9aaa8072f2f06408be959d3a7d82fe02a39e2df5a344ba732b2f',
+  'hex'
+);
+
 const sign = (digest, privateKey) => {
   return ecsign(Buffer.from(digest.slice(2), 'hex'), privateKey);
 };
@@ -67,17 +72,16 @@ function getPermitDigest(name, address, chainId, approve, nonce, deadline) {
 }
 
 contract('Reflecto', (accounts) => {
-  let reflecto, distribution, dex;
+  let reflecto, dex;
   const [admin, investor, _] = accounts;
 
   beforeEach(async () => {
     dex = await DexRouter.new();
-    reflecto = await Reflecto.new(dex.address);
-    distribution = await reflecto.distributorAddress.call();
-  });
-  it('should return distribution contract', async () => {
-    console.log('Get address', distribution);
-    assert(distribution);
+    reflecto = await Reflecto.new(
+      dex.address,
+      '0x10ED43C718714eb63d5aA57B78B54704E256024E',
+    );
+    // distribution = await reflecto.distributorAddress.call();
   });
 
   it('balance of contract deployer should be 1000000000000000', async () => {
@@ -136,10 +140,7 @@ contract('Reflecto', (accounts) => {
     // Sign it
     // NOTE: Using web3.eth.sign will hash the message internally again which
     // we do not want, so we're manually signing here
-    const ownerPrivateKey = Buffer.from(
-      '41b1addcc51a9aaa8072f2f06408be959d3a7d82fe02a39e2df5a344ba732b2f',
-      'hex'
-    );
+
     const { v, r, s } = sign(digest, ownerPrivateKey);
 
     // Approve it

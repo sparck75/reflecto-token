@@ -38,6 +38,25 @@ public async signTransaction() {
   }
 ```
 
+# PancakeRouer testnet
+
+Router: 0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3
+
+WBNB: 0xae13d989dac2f0debff460ac112a837c89baa7cd
+
+BUSD: 0x78867bbeef44f2326bf8ddd1941a4439382ef2a7
+
+CRYPTER: 0xf9f93cf501bfadb6494589cb4b4c15de49e85d0e (CAKE because cannot find crypter)
+
+# PancakeRouer main net
+
+Router: 0x10ed43c718714eb63d5aa57b78b54704e256024e 
+
+WBNB: 0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c
+
+BUSD: 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56
+
+CRYPTER: 0xda6802bbec06ab447a68294a63de47ed4506acaa
 # Deploy to testnet
 
 truffle migrate --network testnet

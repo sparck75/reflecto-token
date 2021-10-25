@@ -17,10 +17,9 @@ contract DividendDistributor is IDividendDistributor {
         uint256 totalRealised;
     }
 
-    IBEP20 BUSD = IBEP20(0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56);
-    IBEP20 CRYPT = IBEP20(0xDa6802BbEC06Ab447A68294A63DE47eD4506ACAA);
+    IBEP20 BEP_TOKEN;
 
-    address WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
+    address WBNB;
     IDEXRouter router;
 
     address[] shareholders;
@@ -52,11 +51,17 @@ contract DividendDistributor is IDividendDistributor {
         _;
     }
 
-    constructor(address _router) {
+    constructor(
+        address _router,
+        address _BEP_TOKEN,
+        address _wbnb
+    ) {
         router = _router != address(0)
             ? IDEXRouter(_router)
             : IDEXRouter(0x10ED43C718714eb63d5aA57B78B54704E256024E);
         _token = msg.sender;
+        BEP_TOKEN = IBEP20(_BEP_TOKEN);
+        WBNB = _wbnb;
     }
 
     function setDistributionCriteria(
@@ -90,17 +95,17 @@ contract DividendDistributor is IDividendDistributor {
     }
 
     function deposit() external payable override onlyToken {
-        uint256 balanceBefore = BUSD.balanceOf(address(this));
+        uint256 balanceBefore = BEP_TOKEN.balanceOf(address(this));
 
         address[] memory path = new address[](2);
         path[0] = WBNB;
-        path[1] = address(BUSD);
+        path[1] = address(BEP_TOKEN);
 
         router.swapExactETHForTokensSupportingFeeOnTransferTokens{
             value: msg.value
         }(0, path, address(this), block.timestamp);
 
-        uint256 amount = BUSD.balanceOf(address(this)).sub(balanceBefore);
+        uint256 amount = BEP_TOKEN.balanceOf(address(this)).sub(balanceBefore);
 
         totalDividends = totalDividends.add(amount);
         dividendsPerShare = dividendsPerShare.add(
@@ -154,7 +159,7 @@ contract DividendDistributor is IDividendDistributor {
         uint256 amount = getUnpaidEarnings(shareholder);
         if (amount > 0) {
             totalDistributed = totalDistributed.add(amount);
-            BUSD.transfer(shareholder, amount);
+            BEP_TOKEN.transfer(shareholder, amount);
             shareholderClaims[shareholder] = block.timestamp;
             shares[shareholder].totalRealised = shares[shareholder]
                 .totalRealised

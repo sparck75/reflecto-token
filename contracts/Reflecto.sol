@@ -5,20 +5,22 @@ import "./libs/IBEP20.sol";
 import "./libs/Auth.sol";
 import "./libs/SafeMath.sol";
 import "./libs/IDEX.sol";
+import "./DistributorFactory.sol";
 import "./DividendDistributor.sol";
 
 contract Reflecto is IBEP20, Auth {
     using SafeMath for uint256;
 
     uint256 public constant MASK = type(uint128).max;
-    address BUSD = 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56;
-    address public WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
+    address BUSD;
+    address Crypter;
+    address public WBNB;
     address DEAD = 0x000000000000000000000000000000000000dEaD;
     address ZERO = 0x0000000000000000000000000000000000000000;
     address DEAD_NON_CHECKSUM = 0x000000000000000000000000000000000000dEaD;
 
-    string constant _name = "REFLECTO_TEST_META";
-    string constant _symbol = "REFLECTO_TEST_META";
+    string constant _name = "REFLECTO";
+    string constant _symbol = "REFLECTO";
     uint8 constant _decimals = 9;
 
     uint256 _totalSupply = 1_000_000_000_000_000 * (10**_decimals);
@@ -64,15 +66,10 @@ contract Reflecto is IBEP20, Auth {
     uint256 autoBuybackBlockPeriod;
     uint256 autoBuybackBlockLast;
 
-    DividendDistributor distributor;
-    address public distributorAddress;
-
+    DistributorFactory distributor;
+    // address public distributorAddress;
     uint256 distributorGas = 500000;
 
-    // bytes32 public immutable PERMIT_TYPEHASH =
-    //     keccak256(
-    //         "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
-    //     );
     // --- EIP712 niceties ---
     bytes32 public DOMAIN_SEPARATOR;
     // bytes32 public constant PERMIT_TYPEHASH = keccak256("Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)");
@@ -88,13 +85,17 @@ contract Reflecto is IBEP20, Auth {
         inSwap = false;
     }
 
-    constructor(address _dexRouter) Auth(msg.sender) {
+    constructor(
+        address _dexRouter,
+        address _WBNBinput
+    ) Auth(msg.sender) {
+        WBNB = _WBNBinput;
+
         router = IDEXRouter(_dexRouter);
         pair = IDEXFactory(router.factory()).createPair(WBNB, address(this));
         _allowances[address(this)][address(router)] = _totalSupply;
         WBNB = router.WETH();
-        distributor = new DividendDistributor(_dexRouter);
-        distributorAddress = address(distributor);
+        distributor = new DistributorFactory();
 
         isFeeExempt[msg.sender] = true;
         isTxLimitExempt[msg.sender] = true;
@@ -110,10 +111,6 @@ contract Reflecto is IBEP20, Auth {
         approve(address(pair), _totalSupply);
         _balances[msg.sender] = _totalSupply;
 
-        uint256 chainId;
-        assembly {
-            chainId := chainid()
-        }
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
                 keccak256(
@@ -121,12 +118,31 @@ contract Reflecto is IBEP20, Auth {
                 ),
                 keccak256(bytes(_name)),
                 keccak256(bytes(version())),
-                chainId,
+                block.chainid,
                 address(this)
             )
         );
 
         emit Transfer(address(0), msg.sender, _totalSupply);
+    }
+
+    function addDistributor(address _dexRouter, address _BEP_TOKEN)
+        external
+        authorized
+    {
+        distributor.addDistributor(_dexRouter, _BEP_TOKEN, WBNB);
+    }
+
+    function deleteDistributor(address _BEP_TOKEN) external authorized {
+        distributor.deleteDistributor(_BEP_TOKEN);
+    }
+
+    function getDistributersBEP20Keys() external view returns (address[] memory)  {
+        return distributor.getDistributorsAddresses();
+    }
+
+    function getDistributer(address _BEP_TOKEN) external view returns (DividendDistributor)  {
+        return distributor.getDistributor(_BEP_TOKEN);
     }
 
     /// @dev Setting the version as a function so that it can be overriden
@@ -139,6 +155,7 @@ contract Reflecto is IBEP20, Auth {
     }
 
     receive() external payable {}
+    function donate() external payable{}
 
     function totalSupply() external view override returns (uint256) {
         return _totalSupply;
@@ -546,10 +563,15 @@ contract Reflecto is IBEP20, Auth {
     }
 
     function setDistributionCriteria(
+        address _BEP_TOKEN,
         uint256 _minPeriod,
         uint256 _minDistribution
     ) external authorized {
-        distributor.setDistributionCriteria(_minPeriod, _minDistribution);
+        distributor.setDistributionCriteria(
+            _BEP_TOKEN,
+            _minPeriod,
+            _minDistribution
+        );
     }
 
     function setDistributorSettings(uint256 gas) external authorized {
