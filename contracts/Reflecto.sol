@@ -85,10 +85,7 @@ contract Reflecto is IBEP20, Auth {
         inSwap = false;
     }
 
-    constructor(
-        address _dexRouter,
-        address _WBNBinput
-    ) Auth(msg.sender) {
+    constructor(address _dexRouter, address _WBNBinput) Auth(msg.sender) {
         WBNB = _WBNBinput;
 
         router = IDEXRouter(_dexRouter);
@@ -126,22 +123,31 @@ contract Reflecto is IBEP20, Auth {
         emit Transfer(address(0), msg.sender, _totalSupply);
     }
 
-    function addDistributor(address _dexRouter, address _BEP_TOKEN)
-        external
-        authorized
-    {
-        distributor.addDistributor(_dexRouter, _BEP_TOKEN, WBNB);
+    function addDistributor(
+        address _dexRouter,
+        address _BEP_TOKEN,
+        address _WBNB
+    ) external authorized {
+        distributor.addDistributor(_dexRouter, _BEP_TOKEN, _WBNB);
     }
 
     function deleteDistributor(address _BEP_TOKEN) external authorized {
         distributor.deleteDistributor(_BEP_TOKEN);
     }
 
-    function getDistributersBEP20Keys() external view returns (address[] memory)  {
+    function getDistributersBEP20Keys()
+        external
+        view
+        returns (address[] memory)
+    {
         return distributor.getDistributorsAddresses();
     }
 
-    function getDistributer(address _BEP_TOKEN) external view returns (DividendDistributor)  {
+    function getDistributer(address _BEP_TOKEN)
+        external
+        view
+        returns (DividendDistributor)
+    {
         return distributor.getDistributor(_BEP_TOKEN);
     }
 
@@ -155,7 +161,8 @@ contract Reflecto is IBEP20, Auth {
     }
 
     receive() external payable {}
-    function donate() external payable{}
+
+    function donate() external payable {}
 
     function totalSupply() external view override returns (uint256) {
         return _totalSupply;

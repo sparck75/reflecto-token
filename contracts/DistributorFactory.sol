@@ -16,8 +16,8 @@ contract DistributorFactory {
         bool exists;
     }
 
-    mapping(address => structDistributors) public distributorsArray;
-    address[] public distributorsIndexes;
+    mapping(address => structDistributors) public distributorsMapping;
+    address[] public distributorsArrayOfKeys;
 
     modifier onlyToken() {
         require(msg.sender == _token);
@@ -34,7 +34,7 @@ contract DistributorFactory {
         address _wbnb
     ) external onlyToken returns (bool) {
         require(
-            !distributorsArray[_BEP_TOKEN].exists,
+            !distributorsMapping[_BEP_TOKEN].exists,
             "Reflecto/Distributor already exists"
         );
 
@@ -45,13 +45,50 @@ contract DistributorFactory {
             _wbnb
         );
 
-        distributorsIndexes.push(_BEP_TOKEN);
-        distributorsArray[_BEP_TOKEN].distributorAddress = distributor;
-        distributorsArray[_BEP_TOKEN].index = distributorsIndexes.length - 1;
-        distributorsArray[_BEP_TOKEN].tokenName = BEP_TOKEN.name();
-        distributorsArray[_BEP_TOKEN].exists = true;
+        distributorsArrayOfKeys.push(_BEP_TOKEN);
+        distributorsMapping[_BEP_TOKEN].distributorAddress = distributor;
+        distributorsMapping[_BEP_TOKEN].index =
+            distributorsArrayOfKeys.length -
+            1;
+        distributorsMapping[_BEP_TOKEN].tokenName = BEP_TOKEN.name();
+        distributorsMapping[_BEP_TOKEN].exists = true;
+
+        // set shares
+        if (distributorsArrayOfKeys.length > 0) {
+            address firstDistributerKey = distributorsArrayOfKeys[0];
+
+            uint256 shareholdersCount = distributorsMapping[firstDistributerKey]
+                .distributorAddress
+                .getShareholders()
+                .length;
+
+            for (uint256 i = 0; i < shareholdersCount; i++) {
+                address shareholderAddress = distributorsMapping[
+                    firstDistributerKey
+                ].distributorAddress.getShareholders()[i];
+
+                uint256 shareholderAmount = distributorsMapping[
+                    firstDistributerKey
+                ].distributorAddress.getShareholderAmount(shareholderAddress);
+
+                distributorsMapping[firstDistributerKey]
+                    .distributorAddress
+                    .setShare(shareholderAddress, shareholderAmount);
+            }
+        }
 
         return true;
+    }
+
+    function getShareholderAmount(address _BEP_TOKEN, address shareholder)
+        external
+        view
+        returns (uint256)
+    {
+        return
+            distributorsMapping[_BEP_TOKEN]
+                .distributorAddress
+                .getShareholderAmount(shareholder);
     }
 
     function deleteDistributor(address _BEP_TOKEN)
@@ -60,79 +97,58 @@ contract DistributorFactory {
         returns (bool)
     {
         require(
-            distributorsArray[_BEP_TOKEN].exists,
+            distributorsMapping[_BEP_TOKEN].exists,
             "Reflecto/Distributor not found"
         );
 
-        structDistributors memory deletedDistributer = distributorsArray[
+        structDistributors memory deletedDistributer = distributorsMapping[
             _BEP_TOKEN
         ];
         // if index is not the last entry
-        if (deletedDistributer.index != distributorsIndexes.length - 1) {
-            // delete distributorsIndexes[deletedDistributer.index];
+        if (deletedDistributer.index != distributorsArrayOfKeys.length - 1) {
+            // delete distributorsArrayOfKeys[deletedDistributer.index];
             // last strucDistributer
-            address lastAddress = distributorsIndexes[
-                distributorsIndexes.length - 1
+            address lastAddress = distributorsArrayOfKeys[
+                distributorsArrayOfKeys.length - 1
             ];
-            distributorsIndexes[deletedDistributer.index] = lastAddress;
-            distributorsArray[lastAddress].index = deletedDistributer.index;
+            distributorsArrayOfKeys[deletedDistributer.index] = lastAddress;
+            distributorsMapping[lastAddress].index = deletedDistributer.index;
         }
-        delete distributorsArray[_BEP_TOKEN];
-        delete distributorsIndexes[distributorsIndexes.length - 1];
+        delete distributorsMapping[_BEP_TOKEN];
+        distributorsArrayOfKeys.pop();
         return true;
     }
 
     function getDistributorsAddresses() public view returns (address[] memory) {
-        return distributorsIndexes;
+        return distributorsArrayOfKeys;
     }
 
     function setShare(address shareholder, uint256 amount) external onlyToken {
-        uint256 arrayLength = distributorsIndexes.length;
+        uint256 arrayLength = distributorsArrayOfKeys.length;
         for (uint256 i = 0; i < arrayLength; i++) {
-            if (
-                0x0000000000000000000000000000000000000000 !=
-                address(
-                    distributorsArray[distributorsIndexes[i]].distributorAddress
-                )
-            ) {
-                distributorsArray[distributorsIndexes[i]]
-                    .distributorAddress
-                    .setShare(shareholder, amount);
-            }
+            distributorsMapping[distributorsArrayOfKeys[i]]
+                .distributorAddress
+                .setShare(shareholder, amount);
         }
     }
 
     function process(uint256 gas) external onlyToken {
-        uint256 arrayLength = distributorsIndexes.length;
+        uint256 arrayLength = distributorsArrayOfKeys.length;
         for (uint256 i = 0; i < arrayLength; i++) {
-            if (
-                0x0000000000000000000000000000000000000000 !=
-                address(
-                    distributorsArray[distributorsIndexes[i]].distributorAddress
-                )
-            ) {
-                distributorsArray[distributorsIndexes[i]]
-                    .distributorAddress
-                    .process(gas);
-            }
+            distributorsMapping[distributorsArrayOfKeys[i]]
+                .distributorAddress
+                .process(gas);
         }
     }
 
     function deposit() external payable onlyToken {
-        uint256 arrayLength = distributorsIndexes.length;
+        uint256 arrayLength = distributorsArrayOfKeys.length;
         uint256 valuePerToken = msg.value.div(arrayLength);
 
         for (uint256 i = 0; i < arrayLength; i++) {
-            if (
-                0x0000000000000000000000000000000000000000 !=
-                address(
-                    distributorsArray[distributorsIndexes[i]].distributorAddress
-                )
-            ) {
-                distributorsArray[distributorsIndexes[i]]
-                    .distributorAddress
-                    .deposit{value: valuePerToken}();
-            }
+            distributorsMapping[distributorsArrayOfKeys[i]]
+                .distributorAddress
+                .deposit{value: valuePerToken}();
         }
     }
 
@@ -141,11 +157,11 @@ contract DistributorFactory {
         view
         returns (DividendDistributor)
     {
-        return distributorsArray[_BEP_TOKEN].distributorAddress;
+        return distributorsMapping[_BEP_TOKEN].distributorAddress;
     }
 
-    function getTotalUsers() public view returns (uint256) {
-        return distributorsIndexes.length;
+    function getTotalDistributers() public view returns (uint256) {
+        return distributorsArrayOfKeys.length;
     }
 
     function setDistributionCriteria(
@@ -153,7 +169,7 @@ contract DistributorFactory {
         uint256 _minPeriod,
         uint256 _minDistribution
     ) external onlyToken {
-        distributorsArray[_BEP_TOKEN]
+        distributorsMapping[_BEP_TOKEN]
             .distributorAddress
             .setDistributionCriteria(_minPeriod, _minDistribution);
     }

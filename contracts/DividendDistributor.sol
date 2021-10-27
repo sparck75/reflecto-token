@@ -46,7 +46,7 @@ contract DividendDistributor is IDividendDistributor {
         initialized = true;
     }
 
-    modifier onlyToken() {
+    modifier onlyFactory() {
         require(msg.sender == _token);
         _;
     }
@@ -67,7 +67,7 @@ contract DividendDistributor is IDividendDistributor {
     function setDistributionCriteria(
         uint256 _minPeriod,
         uint256 _minDistribution
-    ) external override onlyToken {
+    ) external override onlyFactory {
         minPeriod = _minPeriod;
         minDistribution = _minDistribution;
     }
@@ -75,7 +75,7 @@ contract DividendDistributor is IDividendDistributor {
     function setShare(address shareholder, uint256 amount)
         external
         override
-        onlyToken
+        onlyFactory
     {
         if (shares[shareholder].amount > 0) {
             distributeDividend(shareholder);
@@ -94,7 +94,7 @@ contract DividendDistributor is IDividendDistributor {
         );
     }
 
-    function deposit() external payable override onlyToken {
+    function deposit() external payable override onlyFactory {
         uint256 balanceBefore = BEP_TOKEN.balanceOf(address(this));
 
         address[] memory path = new address[](2);
@@ -113,7 +113,7 @@ contract DividendDistributor is IDividendDistributor {
         );
     }
 
-    function process(uint256 gas) external override onlyToken {
+    function process(uint256 gas) external override onlyFactory {
         uint256 shareholderCount = shareholders.length;
 
         if (shareholderCount == 0) {
@@ -207,6 +207,23 @@ contract DividendDistributor is IDividendDistributor {
     function addShareholder(address shareholder) internal {
         shareholderIndexes[shareholder] = shareholders.length;
         shareholders.push(shareholder);
+    }
+
+    function getShareholders()
+        external
+        view
+        onlyFactory
+        returns (address[] memory)
+    {
+        return shareholders;
+    }
+
+    function getShareholderAmount(address shareholder)
+        external
+        view
+        returns (uint256)
+    {
+        return shares[shareholder].amount;
     }
 
     function removeShareholder(address shareholder) internal {
