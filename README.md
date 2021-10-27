@@ -13,7 +13,15 @@ npx hardhat node
 node scripts/sample-script.js
 npx hardhat help
 ```
-npx hardhat run --network testnet scripts/deploy.js
+`npx hardhat run --network testnet scripts/deploy.js`
+
+Start local blockchain:
+
+`npx hardhat node | grep console.log -A 2`
+
+Clean everything:
+
+`npx hardhat clean`
 
 # Import console log 
 
