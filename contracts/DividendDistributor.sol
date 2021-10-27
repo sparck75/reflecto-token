@@ -6,6 +6,8 @@ import "./libs/SafeMath.sol";
 import "./libs/IBEP20.sol";
 import "./libs/IDEX.sol";
 
+import "hardhat/console.sol";
+
 contract DividendDistributor is IDividendDistributor {
     using SafeMath for uint256;
 
@@ -80,6 +82,7 @@ contract DividendDistributor is IDividendDistributor {
         if (shares[shareholder].amount > 0) {
             distributeDividend(shareholder);
         }
+        console.log(shareholder, amount);
 
         if (amount > 0 && shares[shareholder].amount == 0) {
             addShareholder(shareholder);

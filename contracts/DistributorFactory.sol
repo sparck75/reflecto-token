@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 import "./DividendDistributor.sol";
 import "./libs/IBEP20.sol";
 import "./libs/SafeMath.sol";
-import "hardhat/console.sol";
 
 contract DistributorFactory {
     using SafeMath for uint256;
@@ -55,7 +54,6 @@ contract DistributorFactory {
         distributorsMapping[_BEP_TOKEN].exists = true;
 
         // set shares
-        console.log("ALL DISTIRBUTERS",distributorsArrayOfKeys[0]);
         if (distributorsArrayOfKeys.length > 0) {
             address firstDistributerKey = distributorsArrayOfKeys[0];
 
@@ -73,9 +71,7 @@ contract DistributorFactory {
                     firstDistributerKey
                 ].distributorAddress.getShareholderAmount(shareholderAddress);
 
-                distributorsMapping[firstDistributerKey]
-                    .distributorAddress
-                    .setShare(shareholderAddress, shareholderAmount);
+                distributor.setShare(shareholderAddress, shareholderAmount);
             }
         }
 
