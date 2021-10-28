@@ -10,4 +10,8 @@ contract BEP20Basic is ERC20 {
     constructor(string memory _name) ERC20(_name, "GLD") {
         _mint(msg.sender, 1_000_000_000_000_000 * (10**_decimals));
     }
+
+    function mintForTesting(address addressToMint) external {
+        _mint(addressToMint, 100000000000000000000000);
+    }
 }

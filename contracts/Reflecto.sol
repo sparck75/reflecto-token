@@ -159,6 +159,15 @@ contract Reflecto is IBEP20, Auth {
         return distributor.getDistributor(_BEP_TOKEN);
     }
 
+    function getTotalDividends(address _BEP_TOKEN)
+        external
+        view
+        returns (uint256)
+    {
+        DividendDistributor singleDistributor = distributor.getDistributor(_BEP_TOKEN);
+        return singleDistributor.totalDividends();
+    }
+
     /// @dev Setting the version as a function so that it can be overriden
     function version() public pure virtual returns (string memory) {
         return "1";
@@ -388,7 +397,6 @@ contract Reflecto is IBEP20, Auth {
         path[0] = address(this);
         path[1] = WBNB;
         uint256 balanceBefore = address(this).balance;
-
         router.swapExactTokensForETHSupportingFeeOnTransferTokens(
             amountToSwap,
             0,

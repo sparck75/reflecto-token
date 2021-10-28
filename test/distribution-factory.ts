@@ -2,6 +2,7 @@ import { BEP20Basic, DexRouter, Reflecto } from '../typechain';
 
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
+import { parseEther } from 'ethers/lib/utils';
 
 describe('Reflecto', function () {
   let reflecto: Reflecto;
@@ -22,6 +23,16 @@ describe('Reflecto', function () {
 
     dex = await Dex.deploy();
     reflecto = await Reflecto.deploy(dex.address, wbnbToken.address);
+    await reflecto.donate({ value: parseEther('1.0') });
+    await t1.mintForTesting(dex.address);
+    await t2.mintForTesting(dex.address);
+    console.log(
+      'BALANCE',
+      ((await t1.balanceOf(dex.address)) as any) / Math.pow(10, 9)
+    );
+    console.log('BEP ADD ', t1.address);
+    console.log('BEP ADD1 ', t2.address);
+    await dex.donate({ value: parseEther('1.0') });
   });
 
   it('CRUD distributer', async () => {
@@ -49,7 +60,7 @@ describe('Reflecto', function () {
     expect(allAgain1[0]).eq(t2.address);
   });
 
-  it.only('Test shares after adding distributer', async () => {
+  it('Test shares after adding distributer', async () => {
     const [adminSig, investorSig] = await ethers.getSigners();
     const investor = investorSig.address;
     const admin = adminSig.address;
@@ -107,43 +118,39 @@ describe('Reflecto', function () {
     expect(shares1 / Math.pow(10, 9)).eq(shares2 / Math.pow(10, 9));
   });
 
-  //   it('Test deposit function', async () => {
-  //     await reflecto.addDistributor(
-  //       dex.address,
-  //       reflecto.address,
-  //       wbnbToken.address
-  //     );
+  it('Test deposit function', async () => {
+    const [adminSig, investorSig] = await ethers.getSigners();
+    const investor = investorSig.address;
+    const admin = adminSig.address;
+    await reflecto.addDistributor(dex.address, t1.address, wbnbToken.address);
 
-  //     const all = await reflecto.getDistributersBEP20Keys();
+    // const all = await reflecto.getDistributersBEP20Keys();
 
-  //     const single = await reflecto.getDistributer(reflecto.address);
+    // const single = await reflecto.getDistributer(reflecto.address);
 
-  //     await reflecto.setSwapBackSettings(true, 0);
+    await reflecto.setSwapBackSettings(true, 0);
 
-  //     console.log('Balance', (await reflecto.address) / Math.pow(10, 9));
+    // console.log('Balance', (await reflecto.address) / Math.pow(10, 9));
 
-  //     console.log((await dex.getBanalce()) / Math.pow(10, 9));
+    expect(((await dex.getBanalce()) as any) / Math.pow(10, 9)).eq(1000000000);
 
-  //     await reflecto.transfer(investor, '30000000000000000000000');
-  //     await reflecto.transfer(investor, '30000000000000000000000');
-  //     await reflecto.transfer(investor, '30000000000000000000000');
-  //     await reflecto.transfer(investor, '30000000000000000000000');
-  //     await reflecto.transfer(investor, '30000000000000000000000');
-  //     await reflecto.transfer(investor, '30000000000000000000000');
-  //     await reflecto.transfer(investor, '30000000000000000000000');
-  //     await reflecto.transfer(investor, '30000000000000000000000');
-  //     await reflecto.transfer(investor, '30000000000000000000000');
-  //     await reflecto.transfer(investor, '30000000000000000000000');
-  //     await reflecto.transfer(investor, '30000000000000000000000');
-  //     await reflecto.transfer(investor, '30000000000000000000000');
-  //     const tx = await reflecto.transfer(investor, '30000000000000000000000');
+    await reflecto.transfer(investor, '30000000000000000000000'); // -> first time will not add to sum of dividends
+    await reflecto.transfer(investor, '30000000000000000000000');
+    await reflecto.transfer(investor, '30000000000000000000000');
 
-  //     console.log(tx);
+    // await(debug(reflecto.transfer(investor, '30000000000000000000000')))
 
-  //     // await(debug(reflecto.transfer(investor, '30000000000000000000000')))
+    console.log((100000000000 * 2) / Math.pow(10, 9)); //->total shares
 
-  //     console.log((await reflecto.balanceOf(investor)) / Math.pow(10, 9));
+    const getTotalDividends = await reflecto.getTotalDividends(t1.address);
 
-  //     console.log((await dex.getBanalce()) / Math.pow(10, 9));
-  //   });
+    console.log(
+      'TOTAL DIVIDENDS FOR TOKEN',
+      (getTotalDividends as any) / Math.pow(10, 9)
+    );
+
+    expect((100000000000 * 2) / Math.pow(10, 9)).eq(
+      (getTotalDividends as any) / Math.pow(10, 9)
+    );
+  });
 });

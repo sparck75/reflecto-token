@@ -13,7 +13,11 @@ npx hardhat node
 node scripts/sample-script.js
 npx hardhat help
 ```
-`npx hardhat run --network testnet scripts/deploy.js`
+## Testnet 
+`npx hardhat run --network testnet scripts/depoly-testnet.ts`
+
+## Mainnet
+`npx hardhat run --network testnet scripts/depoly-mainnet.ts`
 
 Start local blockchain:
 
@@ -69,13 +73,18 @@ public async signTransaction() {
 
 # PancakeRouer testnet
 
+Reflecto TESTNET Contract Address 0xB9C10490c97E0f94FC17554867D46aae24237E4B
+BUSD deployed  0x26e572cd72a42334e84f73ac2beebe721a39e4b55df90a1cf0e2cda8f31edf04
+Crypter deployed  0x936edad665823dbc54cba2d1a55bda93b0f5b77ed4a9f9952b8f7738f267c8fa
+Pakcakeswap Pair Address 0x3647903b96Cd7F320f5427cBAba830F75E201F7e
+
 Router: 0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3
 
 WBNB: 0xae13d989dac2f0debff460ac112a837c89baa7cd
 
 BUSD: 0x78867bbeef44f2326bf8ddd1941a4439382ef2a7
 
-CRYPTER: 0xf9f93cf501bfadb6494589cb4b4c15de49e85d0e (CAKE because cannot find crypter)
+CRYPTER: 0x8babbb98678facc7342735486c851abd7a0d17ca (ETH because cannot find crypter)
 
 # PancakeRouer main net
 

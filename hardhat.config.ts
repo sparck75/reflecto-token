@@ -1,12 +1,15 @@
-import { task } from "hardhat/config";
-import "@nomiclabs/hardhat-waffle";
-import '@typechain/hardhat'
-import '@nomiclabs/hardhat-ethers'
-import '@nomiclabs/hardhat-waffle'
+const dotEnv = require('dotenv');
+dotEnv.config();
+
+import { task } from 'hardhat/config';
+import '@nomiclabs/hardhat-waffle';
+import '@typechain/hardhat';
+import '@nomiclabs/hardhat-ethers';
+import '@nomiclabs/hardhat-waffle';
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
-task("accounts", "Prints the list of accounts", async (args, hre) => {
+task('accounts', 'Prints the list of accounts', async (args, hre) => {
   const accounts = await hre.ethers.getSigners();
 
   for (const account of accounts) {
@@ -33,26 +36,21 @@ module.exports = {
       // chainId: 97,
       // network_id: '5777',
       gasPrice: 20000000000,
-      accounts: [
-        '22d42ef7b322a59ac87e05d5c18bbbf05d6160ce0d96a8fc0b2137f6c69578e8',
-      ],
+      accounts: [process.env.WALLET_PRIVATE_KEY],
     },
     hardhat: {},
     testnet: {
       url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
       chainId: 97,
-      gasPrice: 20000000000,
-      accounts: [
-        'ed0004ddbff73cf2e41b49c816cae97ec180c68ba0a3e2b54bdf9fe8f5855fcc',
-      ],
+      // gas: 10000000,
+      // gasPrice: 20000000000,
+      accounts: [process.env.WALLET_PRIVATE_KEY],
     },
     mainnet: {
       url: 'https://bsc-dataseed.binance.org/',
       chainId: 56,
-      gasPrice: 20000000000,
-      accounts: [
-        'ed0004ddbff73cf2e41b49c816cae97ec180c68ba0a3e2b54bdf9fe8f5855fcc',
-      ],
+      // gasPrice: 20000000000,
+      accounts: [process.env.WALLET_PRIVATE_KEY],
     },
   },
   solidity: {

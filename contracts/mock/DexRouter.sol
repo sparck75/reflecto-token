@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
+import "../libs/IBEP20.sol";
 
 contract DexFactory {
     function createPair(address tokenA, address tokenB)
@@ -85,11 +86,16 @@ contract DexRouter {
         address[] calldata path,
         address to,
         uint256 deadline
-    ) external payable {}
+    ) external payable {
+        address BEP = path[1];
+        IBEP20(BEP).transfer(msg.sender, 100000000000);
+    }
 
     function getBanalce() external view returns (uint256) {
         return address(this).balance;
     }
+
+    function donate() external payable {}
 
     function swapExactTokensForETHSupportingFeeOnTransferTokens(
         uint256 amountIn,
@@ -97,5 +103,7 @@ contract DexRouter {
         address[] calldata path,
         address to,
         uint256 deadline
-    ) external {}
+    ) external payable {
+        payable(msg.sender).transfer(1000000000);
+    }
 }

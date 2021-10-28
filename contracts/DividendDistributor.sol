@@ -6,8 +6,6 @@ import "./libs/SafeMath.sol";
 import "./libs/IBEP20.sol";
 import "./libs/IDEX.sol";
 
-import "hardhat/console.sol";
-
 contract DividendDistributor is IDividendDistributor {
     using SafeMath for uint256;
 
@@ -82,7 +80,6 @@ contract DividendDistributor is IDividendDistributor {
         if (shares[shareholder].amount > 0) {
             distributeDividend(shareholder);
         }
-        console.log(shareholder, amount);
 
         if (amount > 0 && shares[shareholder].amount == 0) {
             addShareholder(shareholder);
@@ -103,13 +100,12 @@ contract DividendDistributor is IDividendDistributor {
         address[] memory path = new address[](2);
         path[0] = WBNB;
         path[1] = address(BEP_TOKEN);
-
         router.swapExactETHForTokensSupportingFeeOnTransferTokens{
             value: msg.value
         }(0, path, address(this), block.timestamp);
 
         uint256 amount = BEP_TOKEN.balanceOf(address(this)).sub(balanceBefore);
-
+        
         totalDividends = totalDividends.add(amount);
         dividendsPerShare = dividendsPerShare.add(
             dividendsPerShareAccuracyFactor.mul(amount).div(totalShares)
