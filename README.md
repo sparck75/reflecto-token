@@ -13,11 +13,16 @@ npx hardhat node
 node scripts/sample-script.js
 npx hardhat help
 ```
-## Testnet 
+## Testnet
+
 `npx hardhat run --network testnet scripts/depoly-testnet.ts`
 
+`npx hardhat verify --network testnet 0x18a6fB85Fe50e8C7a13d1Bd0459092a162F55415 "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3" "0xae13d989dac2f0debff460ac112a837c89baa7cd"`
 ## Mainnet
+
 `npx hardhat run --network testnet scripts/depoly-mainnet.ts`
+
+`npx hardhat verify --network testnet 0x18a6fB85Fe50e8C7a13d1Bd0459092a162F55415 "0x10ed43c718714eb63d5aa57b78b54704e256024e" "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"`
 
 Start local blockchain:
 
@@ -73,10 +78,10 @@ public async signTransaction() {
 
 # PancakeRouer testnet
 
-Reflecto TESTNET Contract Address 0xB9C10490c97E0f94FC17554867D46aae24237E4B
-BUSD deployed  0x26e572cd72a42334e84f73ac2beebe721a39e4b55df90a1cf0e2cda8f31edf04
-Crypter deployed  0x936edad665823dbc54cba2d1a55bda93b0f5b77ed4a9f9952b8f7738f267c8fa
-Pakcakeswap Pair Address 0x3647903b96Cd7F320f5427cBAba830F75E201F7e
+Reflecto TESTNET Contract Address 0x18a6fB85Fe50e8C7a13d1Bd0459092a162F55415
+BUSD deployed  0x03052eba5c95e14babd42d9dab343988a23a02bb8c12c5ae3739ccef1b851b09
+Crypter deployed  0x54eda636c1f8580f5e0229b49bbaf47bbb0dc6de0d0aea7872cd1bab4d2a1295
+Pakcakeswap Pair Address 0x19d79bEa40f28a854B73151C682f3DbDEB16d1E3
 
 Router: 0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3
 

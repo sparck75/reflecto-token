@@ -26,12 +26,12 @@ describe('Reflecto', function () {
     await reflecto.donate({ value: parseEther('1.0') });
     await t1.mintForTesting(dex.address);
     await t2.mintForTesting(dex.address);
-    console.log(
-      'BALANCE',
-      ((await t1.balanceOf(dex.address)) as any) / Math.pow(10, 9)
-    );
-    console.log('BEP ADD ', t1.address);
-    console.log('BEP ADD1 ', t2.address);
+    // console.log(
+    //   'BALANCE',
+    //   ((await t1.balanceOf(dex.address)) as any) / Math.pow(10, 9)
+    // );
+    // console.log('BEP ADD ', t1.address);
+    // console.log('BEP ADD1 ', t2.address);
     await dex.donate({ value: parseEther('1.0') });
   });
 
@@ -81,12 +81,12 @@ describe('Reflecto', function () {
 
     // check investitor shares
 
-    console.log('Distributer 1', singleDist);
+    // console.log('Distributer 1', singleDist);
     const shares: any = await distributorInstance.getShareholderAmount(
       t1.address,
       investor
     );
-    console.log('Shares before', shares / Math.pow(10, 9));
+    // console.log('Shares before', shares / Math.pow(10, 9));
 
     // // send some transactiions to investiotor
     await reflecto.transfer(investor, '30000000000000000000000');
@@ -100,7 +100,7 @@ describe('Reflecto', function () {
       t1.address,
       investor
     );
-    console.log('Shares after', shares1 / Math.pow(10, 9));
+    // console.log('Shares after', shares1 / Math.pow(10, 9));
 
     // add new distributor
 
@@ -140,14 +140,14 @@ describe('Reflecto', function () {
 
     // await(debug(reflecto.transfer(investor, '30000000000000000000000')))
 
-    console.log((100000000000 * 2) / Math.pow(10, 9)); //->total shares
+    // console.log((100000000000 * 2) / Math.pow(10, 9)); //->total shares
 
     const getTotalDividends = await reflecto.getTotalDividends(t1.address);
 
-    console.log(
-      'TOTAL DIVIDENDS FOR TOKEN',
-      (getTotalDividends as any) / Math.pow(10, 9)
-    );
+    // console.log(
+    //   'TOTAL DIVIDENDS FOR TOKEN',
+    //   (getTotalDividends as any) / Math.pow(10, 9)
+    // );
 
     expect((100000000000 * 2) / Math.pow(10, 9)).eq(
       (getTotalDividends as any) / Math.pow(10, 9)

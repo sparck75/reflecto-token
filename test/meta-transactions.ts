@@ -61,10 +61,10 @@ describe('Testing meta transactions', function () {
 
     // deadline as much as you want in the future
     const deadline = 100000000000000;
-    console.log('1 -----------------------------');
-    console.log(
-      ((await reflecto.balanceOf(investor)) as any) / Math.pow(10, 9)
-    );
+    // console.log('1 -----------------------------');
+    // console.log(
+    //   ((await reflecto.balanceOf(investor)) as any) / Math.pow(10, 9)
+    // );
 
     // Get the user's nonce
     const nonceBn = await reflecto.nonces(admin);
@@ -122,7 +122,7 @@ describe('Testing meta transactions', function () {
       });
 
     const balanceBn: any = await reflecto.balanceOf(investor);
-    console.log(balanceBn / Math.pow(10, 9));
+    // console.log(balanceBn / Math.pow(10, 9));
 
     expect(balanceBn / Math.pow(10, 9)).to.be.equal(30000)
 

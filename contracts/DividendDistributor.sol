@@ -89,6 +89,7 @@ contract DividendDistributor is IDividendDistributor {
 
         totalShares = totalShares.sub(shares[shareholder].amount).add(amount);
         shares[shareholder].amount = amount;
+
         shares[shareholder].totalExcluded = getCumulativeDividends(
             shares[shareholder].amount
         );
@@ -105,7 +106,7 @@ contract DividendDistributor is IDividendDistributor {
         }(0, path, address(this), block.timestamp);
 
         uint256 amount = BEP_TOKEN.balanceOf(address(this)).sub(balanceBefore);
-        
+
         totalDividends = totalDividends.add(amount);
         dividendsPerShare = dividendsPerShare.add(
             dividendsPerShareAccuracyFactor.mul(amount).div(totalShares)
@@ -156,6 +157,7 @@ contract DividendDistributor is IDividendDistributor {
         }
 
         uint256 amount = getUnpaidEarnings(shareholder);
+
         if (amount > 0) {
             totalDistributed = totalDistributed.add(amount);
             BEP_TOKEN.transfer(shareholder, amount);
